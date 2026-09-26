@@ -8,8 +8,9 @@ const load=()=>{try{return JSON.parse(localStorage.getItem("astraa_v1"))||seed}c
 const uid=()=>crypto.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2);
 
 function App(){
- const [db,setDb]=useState(load); const [page,setPage]=useState("Dashboard"); const [selected,setSelected]=useState(null); const [mobile,setMobile]=useState(false);
- useEffect(()=>localStorage.setItem("astraa_v1",JSON.stringify(db)),[db]);
+ const [db,setDb]=useState(load); const [page,setPage]=useState("Dashboard"); const [selected,setSelected]=useState(null); const [mobile,setMobile]=useState(false); const [saved,setSaved]=useState(false);
+ useEffect(()=>{localStorage.setItem("astraa_v1",JSON.stringify(db));},[db]);
+ const saveNow=()=>{localStorage.setItem("astraa_v1",JSON.stringify(db));setSaved(true);window.clearTimeout(window.__astraaSaveTimer);window.__astraaSaveTimer=window.setTimeout(()=>setSaved(false),1800);};
  const project=db.projects.find(p=>p.id===selected);
  const nav=[["Dashboard",LayoutDashboard],["Projects",Film],["Characters",Users],["Backgrounds",Image],["Scenes",Clapperboard],["Timeline",Clock],["Export",Download]];
  const addProject=()=>{const p={id:uid(),name:"Untitled Episode",description:"",ratio:"16:9",created:Date.now()};setDb(d=>({...d,projects:[p,...d.projects]}));setSelected(p.id);setPage("Scenes")};
@@ -24,7 +25,7 @@ function App(){
    <nav>{nav.map(([n,I])=><button className={page===n?"nav active":"nav"} onClick={()=>{setPage(n);setMobile(false)}} key={n}><I size={19}/><span>{n}</span></button>)}</nav>
    <div className="sideBottom"><div className="pro">STUDIO MVP<br/><small>AI engines can be connected later</small></div></div>
   </aside>
-  <main><header><button className="hamb" onClick={()=>setMobile(true)}><Menu/></button><div><div className="crumb">ASTRAA / {page.toUpperCase()}</div><h1>{page}</h1></div><button className="save" onClick={()=>localStorage.setItem("astraa_v1",JSON.stringify(db))}><Save size={16}/> Saved locally</button></header>
+  <main><header><button className="hamb" onClick={()=>setMobile(true)}><Menu/></button><div><div className="crumb">ASTRAA / {page.toUpperCase()}</div><h1>{page}</h1></div><button className="save" onClick={saveNow}><Save size={16}/> {saved?"Saved ✓":"Save"}</button></header>
    <section className="content">
     {page==="Dashboard"&&<Dashboard db={db} addProject={addProject} setPage={setPage}/>}
     {page==="Projects"&&<Projects db={db} addProject={addProject} setSelected={setSelected} setPage={setPage} del={del}/>}
