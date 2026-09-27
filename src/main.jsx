@@ -4,7 +4,7 @@ import {LayoutDashboard,Film,Users,Image,Clapperboard,Clock,Download,Plus,Trash2
 import "./styles.css";
 
 const seed={projects:[],characters:[],backgrounds:[],scenes:[]};
-const load=()=>{try{return JSON.parse(localStorage.getItem("astraa_v1"))||seed}catch{return seed}};
+const load=()=>{try{const raw=localStorage.getItem("astraa_v1");if(!raw)return seed;const d=JSON.parse(raw)||seed;if(d.sceneNumberRepairV2)return d;const projects=d.projects||[];const scenes=d.scenes||[];const repaired=projects.flatMap(p=>scenes.filter(s=>s.projectId===p.id).sort((a,b)=>Number(a.order||0)-Number(b.order||0)).map((s,i)=>({...s,order:i+1})));const other=scenes.filter(s=>!projects.some(p=>p.id===s.projectId));const out={...d,scenes:[...repaired,...other],sceneNumberRepairV2:true};localStorage.setItem("astraa_v1",JSON.stringify(out));return out}catch{return seed}};
 const uid=()=>crypto.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2);
 const nextSceneNumber=(scenes,projectId)=>{
  const used=new Set(scenes.filter(s=>s.projectId===projectId).map(s=>Number(s.order)).filter(n=>Number.isFinite(n)&&n>0));
