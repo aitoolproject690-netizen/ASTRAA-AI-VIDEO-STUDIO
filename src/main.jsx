@@ -14,8 +14,8 @@ const nextSceneNumber=(scenes,projectId)=>{
 };
 
 function App(){
- const [db,setDb]=useState(load); const [page,setPage]=useState("Dashboard"); const [selected,setSelected]=useState(null); const [mobile,setMobile]=useState(false); const [saved,setSaved]=useState(false);
- useEffect(()=>{localStorage.setItem("astraa_v1",JSON.stringify(db));},[db]);
+ const initialDb=load(); const initialSelected=(()=>{const savedId=localStorage.getItem("astraa_selected_project"); if(savedId&&initialDb.projects.some(p=>p.id===savedId)) return savedId; return initialDb.projects.map(p=>({p,n:initialDb.scenes.filter(s=>s.projectId===p.id).length})).sort((a,b)=>b.n-a.n)[0]?.p.id||null;})(); const [db,setDb]=useState(initialDb); const [page,setPage]=useState("Dashboard"); const [selected,setSelected]=useState(initialSelected); const [mobile,setMobile]=useState(false); const [saved,setSaved]=useState(false);
+ useEffect(()=>{localStorage.setItem("astraa_v1",JSON.stringify(db));},[db]); useEffect(()=>{if(selected)localStorage.setItem("astraa_selected_project",selected); else localStorage.removeItem("astraa_selected_project");},[selected]);
  const saveNow=()=>{localStorage.setItem("astraa_v1",JSON.stringify(db));setSaved(true);window.clearTimeout(window.__astraaSaveTimer);window.__astraaSaveTimer=window.setTimeout(()=>setSaved(false),1800);};
  const project=db.projects.find(p=>p.id===selected);
  const nav=[["Dashboard",LayoutDashboard],["Projects",Film],["Characters",Users],["Backgrounds",Image],["Scenes",Clapperboard],["Timeline",Clock],["Export",Download]];
